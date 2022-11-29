@@ -1,6 +1,3 @@
-uth: Brennan D Baraban
-*/
-
 #include "lists.h"
 
 /**
