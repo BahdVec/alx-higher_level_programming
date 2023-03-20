@@ -1,27 +1,30 @@
-
 #!/usr/bin/python3
 """
-a script that display cities in state
+Script that prints all City objects
+from the database hbtn_0e_14_usa
 """
+if __name__ == "__main__":
+    """ This won't be run when imported """
 
-import sys
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from model_state import Base, State
-from model_city import City
+    from sys import argv
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import Session
+    from model_state import Base, State
+    from model_city import City
 
-
-if __name__ == '__main__':
-    engine = create_engine('mysql+mysqldb://{}:{}@localhost/{}'
-                           .format(sys.argv[1], sys.argv[2], sys.argv[3]),
+    engine = create_engine('mysql+mysqldb://{}:{}@localhost:3306/{}'.
+                           format(argv[1], argv[2], argv[3]),
                            pool_pre_ping=True)
 
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    Base.metadata.create_all(engine)
 
-    states_cities = session.query(State, City)\
-                           .filter(State.id == City.state_id)\
-                           .order_by(City.id).all()
+    session = Session(engine)
 
-    for state, city in states_cities:
-        print('{}: ({}) {}'. format(state.name, city.id, city.name))
+    city_objects = (session.query(City, State).join(State).
+                    order_by(City.id))
+
+    for city_object, state_object in city_objects:
+        print("{}: ({}) {}".format(state_object.name, city_object.id,
+                                   city_object.name))
+
+    session.close()
